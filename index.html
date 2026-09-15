@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab Asset &amp; Service Management System</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <div id="auth-screen">
+    <div class="auth-card">
+      <h1 id="auth-title">Sign In</h1>
+      <p class="subtitle">Role-Based Asset Transaction &amp; Approval Management</p>
+
+      <div class="field hidden" id="signup-name-field">
+        <label>Full Name</label>
+        <input id="auth-fullname" type="text" placeholder="Juan Dela Cruz">
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input id="auth-email" type="email" placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input id="auth-password" type="password" placeholder="••••••••">
+      </div>
+
+      <button class="btn" id="login-btn" style="width:100%;">Sign In</button>
+      <button class="btn hidden" id="signup-btn" style="width:100%;">Create Account</button>
+
+      <div style="margin-top:12px;text-align:center;">
+        <button class="link-btn" id="toggle-mode">New here? Create an account</button>
+      </div>
+      <div id="auth-error"></div>
+      <p style="font-size:11px;color:#9ca3af;margin-top:14px;">
+        New accounts start as <b>Requester</b>. Ask an Administrator to upgrade your role
+        (Staff/Admin) from the Users page, or run the SQL update shown in schema.sql.
+      </p>
+    </div>
+  </div>
+
+  <div id="app-shell" class="hidden">
+    <nav id="sidebar"></nav>
+    <main id="content"></main>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
