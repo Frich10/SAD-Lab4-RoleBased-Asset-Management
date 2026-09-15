@@ -164,18 +164,6 @@ PNG version: [`docs/workflow.png`](docs/workflow.png).
 
 ## 7. Audit-Log Screenshot
 
-`audit_logs(id, user_id, action, module, record_id, description, created_at)` is
-populated automatically by `SECURITY DEFINER` triggers whenever a sensitive action
-occurs (request submitted/approved/rejected/released/returned/closed, equipment
-added/updated/deleted, maintenance opened/resolved, role changed). Regular users
-have **no** insert/update/delete privilege on this table — only the Administrator
-can even read it — so the trail cannot be tampered with from the application layer.
-
-Screenshot:
-
-`[ Insert docs/audit-log-screenshot.png here — capture the Audit Log page while
-logged in as Administrator, after performing a few actions so the log has entries ]`
-
 ## 8. Functional Test Results
 
 | Test ID | Scenario | Expected Result | Pass/Fail |
