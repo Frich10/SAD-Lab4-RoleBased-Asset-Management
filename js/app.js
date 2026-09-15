@@ -1,7 +1,3 @@
-// =====================================================================
-// Lab 4-A App logic
-// =====================================================================
-
 let currentUser = null;
 let currentProfile = null;
 let currentView = "dashboard";
@@ -9,7 +5,6 @@ let currentView = "dashboard";
 const authScreen = document.getElementById("auth-screen");
 const appShell = document.getElementById("app-shell");
 
-// ---------------------------------------------------------------- init
 window.addEventListener("DOMContentLoaded", async () => {
   wireAuthForm();
   const { data } = await supabaseClient.auth.getSession();
@@ -19,7 +14,6 @@ window.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-// ---------------------------------------------------------------- auth
 function wireAuthForm() {
   document.getElementById("login-btn").addEventListener("click", handleLogin);
   document.getElementById("signup-btn").addEventListener("click", handleSignup);
@@ -97,7 +91,6 @@ async function handleLogout() {
   authScreen.classList.remove("hidden");
 }
 
-// ---------------------------------------------------------------- nav
 const NAV_BY_ROLE = {
   admin:  [["dashboard","Dashboard"],["equipment","Equipment"],["approvals","Approvals"],
            ["operations","Release / Return"],["maintenance","Maintenance"],
@@ -133,7 +126,7 @@ function markActiveNav() {
 }
 
 async function navigate(view) {
-  // access guard: block views the role has no nav entry for
+
   const allowed = (NAV_BY_ROLE[currentProfile.role] || []).some(([key]) => key === view);
   if (!allowed) {
     toast("Access denied for your role.");
@@ -165,7 +158,6 @@ function toast(msg) {
 function content() { return document.getElementById("content"); }
 function badge(status) { return `<span class="badge ${status.replace(/\s/g,'')}">${status}</span>`; }
 
-// ---------------------------------------------------------------- dashboard
 async function renderDashboard() {
   const [{ count: eqCount }, { data: myTx }] = await Promise.all([
     supabaseClient.from("equipment").select("*", { count: "exact", head: true }),
@@ -200,7 +192,6 @@ function roleDescription(role) {
   return `<p style="font-size:14px;">${desc[role]}</p>`;
 }
 
-// ---------------------------------------------------------------- equipment
 async function renderEquipment() {
   const { data: eq, error } = await supabaseClient.from("equipment").select("*").order("id");
   const canManage = currentProfile.role === "admin";
@@ -272,7 +263,6 @@ async function quickRequest(equipmentId) {
   renderEquipment();
 }
 
-// ---------------------------------------------------------------- my requests (requester)
 async function renderMyRequests() {
   const { data } = await supabaseClient
     .from("borrowing_transactions")
@@ -295,7 +285,6 @@ async function renderMyRequests() {
   `;
 }
 
-// ---------------------------------------------------------------- approvals (admin)
 async function renderApprovals() {
   const { data } = await supabaseClient
     .from("borrowing_transactions")
@@ -325,12 +314,11 @@ async function renderApprovals() {
 
 async function decideRequest(id, status) {
   const { error } = await supabaseClient.from("borrowing_transactions").update({ status }).eq("id", id);
-  if (error) return toast(error.message); // e.g. BR-A4-02 self-approval block surfaces here
+  if (error) return toast(error.message);
   toast(`Request ${status}.`);
   renderApprovals();
 }
 
-// ---------------------------------------------------------------- operations (staff/admin: release & return)
 async function renderOperations() {
   const { data } = await supabaseClient
     .from("borrowing_transactions")
@@ -373,7 +361,6 @@ async function returnTx(id) {
   renderOperations();
 }
 
-// ---------------------------------------------------------------- maintenance
 async function renderMaintenance() {
   const { data: eq } = await supabaseClient.from("equipment").select("id,name").order("name");
   const { data: reqs } = await supabaseClient
@@ -428,7 +415,6 @@ async function resolveMaintenance(id) {
   renderMaintenance();
 }
 
-// ---------------------------------------------------------------- users (admin)
 async function renderUsers() {
   const { data } = await supabaseClient.from("profiles").select("*").order("full_name");
   content().innerHTML = `
@@ -457,7 +443,6 @@ async function changeRole(id, role) {
   toast("Role updated.");
 }
 
-// ---------------------------------------------------------------- audit log (admin)
 async function renderAuditLog() {
   const { data, error } = await supabaseClient
     .from("audit_logs")

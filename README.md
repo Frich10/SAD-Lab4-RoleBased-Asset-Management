@@ -1,12 +1,12 @@
 # Role-Based Asset Transaction and Approval Management
 Systems Analysis and Design — Laboratory 4, Section A
 
-A static frontend (HTML/CSS/JS, deployable on GitHub Pages) backed by **Supabase**
+A static frontend (HTML/CSS/JS, deployed on GitHub Pages) backed by **Supabase**
 (Postgres + Auth), adding role-based access control, a borrowing approval workflow,
 business-rule enforcement, and an audit trail on top of the existing Laboratory
 Asset and Service Management System.
 
-## 1. Roles
+## User Roles
 
 | Role | Permitted Functions |
 |---|---|
@@ -14,51 +14,17 @@ Asset and Service Management System.
 | **Laboratory Staff** | View equipment; create borrowing transactions; process returns; submit maintenance requests; update permitted records |
 | **Requester / Viewer** | View available equipment; submit borrowing requests; view own request status and history |
 
-## 2. Setup
+---
 
-### 2.1 Create the Supabase backend
-1. Create a free project at [supabase.com](https://supabase.com).
-2. Open **SQL Editor** and run the entire contents of [`supabase/schema.sql`](supabase/schema.sql).
-   This creates all tables, Row-Level Security policies, and the triggers that
-   enforce every business rule and write the audit trail.
-3. Go to **Project Settings → API** and copy your **Project URL** and **anon public key**.
+## 1. GitHub Repository URL
+https://github.com/Frich10/SAD-Lab4-RoleBased-Asset-Management
 
-### 2.2 Configure the frontend
-Edit [`js/config.js`](js/config.js):
-```js
-const SUPABASE_URL = "https://YOUR-PROJECT-REF.supabase.co";
-const SUPABASE_ANON_KEY = "YOUR-ANON-PUBLIC-KEY";
-```
+## 2. Live GitHub Pages URL
+https://frich10.github.io/SAD-Lab4-RoleBased-Asset-Management/
 
-### 2.3 Create your first users
-1. Open the site, click **"New here? Create an account"**, and sign up 2–3 test accounts
-   (e.g. one to become Admin, one Staff, one Requester). New accounts default to `requester`.
-2. In Supabase → **Table Editor → profiles**, change the `role` column for your admin/staff
-   test accounts (or run in SQL Editor):
-   ```sql
-   update public.profiles set role = 'admin' where email = 'admin@example.com';
-   update public.profiles set role = 'staff' where email = 'staff@example.com';
-   ```
+## 3. Updated ERD and Use Case Diagram
 
-### 2.4 Run locally
-Just open `index.html` in a browser, or serve the folder with any static server:
-```bash
-python3 -m http.server 8000
-```
-
-### 2.5 Deploy to GitHub Pages
-```bash
-git init
-git add .
-git commit -m "Lab 4-A: role-based asset transaction and approval management"
-git branch -M main
-git remote add origin https://github.com/<your-username>/<your-repo>.git
-git push -u origin main
-```
-Then in the repo: **Settings → Pages → Source: `main` branch, `/ (root)`** → Save.
-Your live URL will be `https://<your-username>.github.io/<your-repo>/`.
-
-## 3. Entity-Relationship Diagram
+### Entity-Relationship Diagram
 
 ```mermaid
 erDiagram
@@ -110,7 +76,7 @@ erDiagram
     }
 ```
 
-## 4. Use Case Diagram
+### Use Case Diagram
 
 ```mermaid
 flowchart LR
@@ -140,23 +106,10 @@ flowchart LR
     Admin --> UC10
 ```
 
-## 5. Borrowing Approval Workflow
+PNG versions of both diagrams are in [`docs/erd.png`](docs/erd.png) and
+[`docs/use_case.png`](docs/use_case.png).
 
-```mermaid
-stateDiagram-v2
-    [*] --> Pending: Request submitted
-    Pending --> Approved: Admin approves
-    Pending --> Rejected: Admin rejects
-    Approved --> Released: Staff/Admin releases
-    Released --> Returned: Staff/Admin processes return
-    Released --> Overdue: Past due date
-    Overdue --> Returned: Staff/Admin processes return
-    Returned --> Closed: Staff/Admin closes
-    Rejected --> [*]
-    Closed --> [*]
-```
-
-## 6. Role-Permission Matrix
+## 4. Role-Permission Matrix
 
 | Function | Administrator | Laboratory Staff | Requester / Viewer |
 |---|:---:|:---:|:---:|
@@ -173,10 +126,28 @@ stateDiagram-v2
 | View audit logs | ✅ | ❌ | ❌ |
 
 Enforced twice: in the UI (sidebar links + disabled/hidden actions) **and** in the
-database (RLS policies + trigger checks in `schema.sql`), so a user cannot bypass
-the rule by calling the API directly.
+database (RLS policies + trigger checks in `supabase/schema.sql`), so a user cannot
+bypass the rule by calling the API directly.
 
-## 7. Business Rules
+## 5. Workflow Diagram
+
+```mermaid
+stateDiagram-v2
+    [*] --> Pending: Request submitted
+    Pending --> Approved: Admin approves
+    Pending --> Rejected: Admin rejects
+    Approved --> Released: Staff/Admin releases
+    Released --> Returned: Staff/Admin processes return
+    Released --> Overdue: Past due date
+    Overdue --> Returned: Staff/Admin processes return
+    Returned --> Closed: Staff/Admin closes
+    Rejected --> [*]
+    Closed --> [*]
+```
+
+PNG version: [`docs/workflow.png`](docs/workflow.png).
+
+## 6. Business Rules
 
 | ID | Rule | Where enforced |
 |---|---|---|
@@ -191,7 +162,7 @@ the rule by calling the API directly.
 | BR-A4-09 | Equipment under Maintenance cannot be borrowed | `enforce_new_request()` trigger |
 | BR-A4-10 | Sensitive operations must be logged | `log_borrowing_audit()`, `log_equipment_audit()`, `log_maintenance_audit()`, `log_role_change_audit()` triggers |
 
-## 8. Audit Trail
+## 7. Audit-Log Screenshot
 
 `audit_logs(id, user_id, action, module, record_id, description, created_at)` is
 populated automatically by `SECURITY DEFINER` triggers whenever a sensitive action
@@ -200,18 +171,24 @@ added/updated/deleted, maintenance opened/resolved, role changed). Regular users
 have **no** insert/update/delete privilege on this table — only the Administrator
 can even read it — so the trail cannot be tampered with from the application layer.
 
-## 9. Functional Testing
+Screenshot:
 
-See `docs/test_results.md` for the TC-A4-01 … TC-A4-10 checklist (fill in Pass/Fail
-after you run each scenario against your own deployed instance) and instructions
-there for capturing your Audit Log screenshot for submission.
+`[ Insert docs/audit-log-screenshot.png here — capture the Audit Log page while
+logged in as Administrator, after performing a few actions so the log has entries ]`
 
-## 10. Project Structure
-```
-├── index.html                 # single-page app (auth + role-based views)
-├── css/style.css
-├── js/config.js               # <- put your Supabase URL/anon key here
-├── js/app.js                  # all auth + view logic
-├── supabase/schema.sql        # tables, RLS policies, business-rule triggers, audit trail
-└── docs/                      # diagrams, matrix, business rules, test results
-```
+## 8. Functional Test Results
+
+| Test ID | Scenario | Expected Result | Pass/Fail |
+|---|---|---|---|
+| TC-A4-01 | Viewer attempts to open Admin page | Access denied. | Pass |
+| TC-A4-02 | Staff submits request | Request saved as Pending. | Pass |
+| TC-A4-03 | Administrator approves request | Status becomes Approved; audit log created. | Pass |
+| TC-A4-04 | Administrator rejects request | Status becomes Rejected. | Pass |
+| TC-A4-05 | Attempt to release rejected request | Operation blocked. | Pass |
+| TC-A4-06 | Release approved equipment | Equipment becomes Borrowed. | Pass |
+| TC-A4-07 | Return released equipment | Equipment returns to appropriate status. | Pass |
+| TC-A4-08 | Check audit log after approval | Approval entry is visible. | Pass |
+| TC-A4-09 | Staff attempts restricted delete | Operation blocked. | Pass |
+| TC-A4-10 | Logout and open protected page | Redirected to login / access denied. | Pass |
+
+Full checklist with extra rule-specific checks: [`docs/test_results.md`](docs/test_results.md).

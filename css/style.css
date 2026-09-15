@@ -12,12 +12,10 @@
   --text:           #1B222C;
   --muted:          #6B7480;
 
-  /* brand accent — reagent teal */
   --accent:         #0E7C66;
   --accent-dark:    #0A5F4E;
   --accent-soft:    #E3F3EE;
 
-  /* status vocabulary, shared with badges */
   --good-bg: #E3F3EA;  --good-fg: #146C3F;
   --warn-bg: #FBF0DA;  --warn-fg: #92600E;
   --bad-bg:  #FBE7E6;  --bad-fg:  #A32A24;
@@ -51,7 +49,6 @@ h1, h2, h3 { font-family: var(--font-ui); letter-spacing: -0.01em; color: var(--
 
 .hidden { display: none !important; }
 
-/* ---------------------------------------------------------- Auth screen */
 #auth-screen {
   min-height: 100vh;
   display: flex;
